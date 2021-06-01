@@ -33,18 +33,19 @@ int	main(int argc, char **argv)
 	server_pid = parse_pid(argv[1]);
 	str = argv[2];
 	printf("send |%s| to %d\n", str, server_pid);
-	// TODO: 文字列を1bitずつserverに送信する
+	// 文字列を1bitずつserverに送信する
 	// SIGUSR1: 0, SIGUSR2: 1 と見立てて送信する
 	i = 0;
 	while (str[i])
 	{
+		printf("%c\n", str[i]);
 		bit_pos = 7;
 		while (bit_pos >= 0)
 		{
-			if (str[i] & (1 << bit_pos))
-				kill(server_pid, SIGUSR2);
-			else
-				kill(server_pid, SIGUSR1);
+			if ((str[i] & (1 << bit_pos)) && kill(server_pid, SIGUSR2) < 0)
+				return (1);
+			else if (kill(server_pid, SIGUSR1) < 0)
+				return (1);
 			usleep(50);
 			bit_pos--;
 		}
