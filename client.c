@@ -38,14 +38,22 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (str[i])
 	{
-		printf("%c\n", str[i]);
+		printf("c: %#x\n", str[i]);
 		bit_pos = 7;
 		while (bit_pos >= 0)
 		{
-			if ((str[i] & (1 << bit_pos)) && kill(server_pid, SIGUSR2) < 0)
-				return (1);
-			else if (kill(server_pid, SIGUSR1) < 0)
-				return (1);
+			printf("%d ", (str[i] & (1 << bit_pos)) != 0);
+			fflush(stdout);
+			if (str[i] & (1 << bit_pos))
+			{
+				if (kill(server_pid, SIGUSR2) < 0)
+					return (1);
+			}
+			else
+			{
+				if (kill(server_pid, SIGUSR1) < 0)
+					return (1);
+			}
 			usleep(50);
 			bit_pos--;
 		}

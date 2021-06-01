@@ -5,13 +5,17 @@
 
 void	restore_data_from_bit(int bit)
 {
-	static char	c;
+	static int	c;
 	static int	current_bit;
 
+	printf("%d ", bit);
+	fflush(stdout);
 	c = (c << 1) | bit;
 	current_bit++;
 	if (current_bit == 8)
 	{
+		printf("\nc: %#x\n", c);
+		fflush(stdout);
 		write(STDOUT_FILENO, &c, 1);
 		c = 0;
 		current_bit = 0;
