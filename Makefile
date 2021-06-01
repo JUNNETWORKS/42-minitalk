@@ -13,15 +13,22 @@ all: $(NAME)
 
 $(NAME): $(SERVER_NAME) $(CLIENT_NAME)
 
-SERVER_NAME:
+%.o: %.c
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+$(SERVER_NAME): $(SERVER_OBJS)
 	$(CC) $(CFLAGS) -o $(SERVER_NAME) $(SERVER_OBJS)
 
-CLIENT_NAME:
+$(CLIENT_NAME): $(CLIENT_OBJS)
 	$(CC) $(CFLAGS) -o $(CLIENT_NAME) $(CLIENT_OBJS)
 
 clean:
+	${RM} ${SERVER_OBJS}
+	${RM} ${CLIENT_OBJS}
 
 fclean: clean
+	${RM} ${SERVER_NAME}
+	${RM} ${CLIENT_NAME}
 
 re: fclean all
 
