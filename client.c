@@ -24,18 +24,31 @@ pid_t	parse_pid(char *str)
 int	main(int argc, char **argv)
 {
 	pid_t	server_pid;
+	int		i;
+	int		bit_pos;
+	char	*str;
 
 	if (argc < 3)
-	{
-		printf("You have to pass server_pid and message\n");
 		return (1);
-	}
 	server_pid = parse_pid(argv[1]);
-	printf("send |%s| to %d\n", argv[2], server_pid);
-	if (kill(server_pid, SIGUSR1) == -1 || kill(server_pid, SIGUSR2) == -1)
+	str = argv[2];
+	printf("send |%s| to %d\n", str, server_pid);
+	// TODO: 文字列を1bitずつserverに送信する
+	// SIGUSR1: 0, SIGUSR2: 1 と見立てて送信する
+	i = 0;
+	while (str[i])
 	{
-		printf("%s\n", strerror(errno));
-		return (1);
+		bit_pos = 7;
+		while (bit_pos >= 0)
+		{
+			if (str[i] & (1 << bit_pos))
+				kill(server_pid, SIGUSR2);
+			else
+				kill(server_pid, SIGUSR1);
+			usleep(50);
+			bit_pos--;
+		}
+		i++;
 	}
 	return (0);
 }
