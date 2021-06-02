@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include "server.h"
+#include "server_bonus.h"
 
 int	g_char;
 int	g_current_bit;
