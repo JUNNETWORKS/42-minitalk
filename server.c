@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
@@ -8,20 +7,13 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 	static int	c;
 	static int	current_bit;
 
-	printf("%d ", bit);
-	fflush(stdout);
 	c = (c << 1) | bit;
 	current_bit++;
 	if (current_bit == 8)
 	{
-		printf("\nc: %#x\n", c);
-		fflush(stdout);
 		write(STDOUT_FILENO, &c, 1);
-		printf("\n");
 		c = 0;
 		current_bit = 0;
-		// SIGUSR1 を client に送信
-		printf("send ACK(SIGUSR1) to client %d\n", client_pid);
 		usleep(10);
 		kill(client_pid, SIGUSR1);
 	}
@@ -41,8 +33,20 @@ void	sigusr2_handler(int signum, siginfo_t *info, void *context)
 	restore_data_from_bit(1, info->si_pid);
 }
 
-void	setup_sigactions(void)
+void	print_pid(pid_t	pid)
 {
+	char	c;
+
+	if (!pid)
+		return ;
+	print_pid(pid / 10);
+	c = (pid % 10) + '0';
+	write(STDOUT_FILENO, &c, 1);
+}
+
+int	main(void)
+{
+	pid_t				pid;
 	struct sigaction	act_sigusr1;
 	struct sigaction	act_sigusr2;
 
@@ -54,12 +58,10 @@ void	setup_sigactions(void)
 	act_sigusr2.sa_flags = SA_SIGINFO;
 	act_sigusr2.sa_sigaction = sigusr2_handler;
 	sigaction(SIGUSR2, &act_sigusr2, NULL);
-}
-
-int	main()
-{
-	printf("server pid: %d\n", getpid());
-	setup_sigactions();
+	pid = getpid();
+	write(STDOUT_FILENO, "server_pid: ", 12);
+	print_pid(pid);
+	write(1, "\n", 1);
 	while (1)
 		pause();
 	return (0);
