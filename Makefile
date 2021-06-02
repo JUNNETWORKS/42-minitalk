@@ -25,7 +25,8 @@ $(CLIENT_NAME): $(CLIENT_OBJS)
 NAME_BONUS = minitalk_bonus
 SERVER_NAME_BONUS = server_bonus
 CLIENT_NAME_BONUS = client_bonus
-SERVER_SRCS_BONUS = server_bonus.c
+SERVER_SRCS_BONUS = server_bonus.c server_sighandlers.c
+SERVER_HEADERS_BONUS = server_bonus.h
 CLIENT_SRCS_BONUS = client_bonus.c
 CLIENT_OBJS_BONUS = $(CLIENT_SRCS_BONUS:.c=.o)
 SERVER_OBJS_BONUS = $(SERVER_SRCS_BONUS:.c=.o)
