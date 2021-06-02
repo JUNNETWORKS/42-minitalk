@@ -3,19 +3,25 @@ SERVER_NAME = server
 CLIENT_NAME = client
 CC = gcc
 CFLAGS = -Werror -Wall -Wextra -g
-SERVER_SRCS = server.c server_sighandlers.c
 SERVER_HEADERS = server.h
+SERVER_SRCS := server.c server_sighandlers.c
+ifdef BONUS
+	SERVER_SRCS := server_bonus.c server_sighandlers_bonus.c
+endif
 CLIENT_SRCS = client.c
 CLIENT_OBJS = $(CLIENT_SRCS:.c=.o)
 SERVER_OBJS = $(SERVER_SRCS:.c=.o)
+SERVER_DEPS = $(SERVER_SRCS:.c=.d)
 
 all: $(NAME)
 
 $(NAME): $(SERVER_NAME) $(CLIENT_NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+	# -MMD -MP -MF で依存ファイルリスト生成
+	$(CC) $(CFLAGS)  -MMD -MP -MF $(<:.c=.d) -c $< -o $@
 
+-include $(SERVER_DEPS)
 $(SERVER_NAME): $(SERVER_OBJS) $(SERVER_HEADERS)
 	$(CC) $(CFLAGS) -o $(SERVER_NAME) $(SERVER_OBJS)
 
@@ -46,6 +52,7 @@ clean:
 	${RM} ${CLIENT_OBJS}
 	${RM} ${SERVER_OBJS_BONUS}
 	${RM} ${CLIENT_OBJS_BONUS}
+	${RM} ${SERVER_DEPS}
 
 fclean: clean
 	${RM} ${SERVER_NAME}

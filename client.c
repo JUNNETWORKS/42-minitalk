@@ -42,12 +42,9 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 			return (1);
 		while (bit_pos >= 0)
 		{
-			if (str[i] & (1 << bit_pos) && kill(server_pid, SIGUSR2) < 0)
+			if (kill(server_pid, (int[]){SIGUSR1, SIGUSR2}[str[i] & (1 << bit_pos)]) < 0)
 				return (1);
-			else if (!(str[i] & (1 << bit_pos))
-				&& kill(server_pid, SIGUSR1) < 0)
-				return (1);
-			usleep(50);
+			usleep(100);
 			bit_pos--;
 		}
 		i++;
@@ -55,13 +52,20 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 	return (0);
 }
 
+// TODO: 1000文字2秒以内
+// TODO: ACKが届いてからclientはexitする.
 int	main(int argc, char **argv)
 {
 	pid_t	server_pid;
 
-	if (argc < 3)
+	if (argc != 3)
+	{
+		write(STDERR_FILENO, "argc is invalid\n", -1);  // TODO
 		return (1);
+	}
 	server_pid = parse_pid(argv[1]);
+	if (!(server_pid > 0))
+		return (1);
 	signal(SIGUSR1, sigusr1_handler);
 	return (send_str_by_signal(argv[2], server_pid));
 }

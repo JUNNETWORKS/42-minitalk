@@ -14,7 +14,7 @@ void	sigusr1_handler(int signum, siginfo_t *info, void *context)
 {
 	(void)signum;
 	(void)context;
-	restore_data_from_bit(0, info->si_pid);
+	restore_data_from_bit(signum == SIGUSR2, info->si_pid);
 }
 
 void	sigusr2_handler(int signum, siginfo_t *info, void *context)
