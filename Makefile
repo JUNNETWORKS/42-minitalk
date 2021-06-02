@@ -3,7 +3,8 @@ SERVER_NAME = server
 CLIENT_NAME = client
 CC = gcc
 CFLAGS = -Werror -Wall -Wextra -g
-SERVER_SRCS = server.c
+SERVER_SRCS = server.c server_sighandlers.c
+SERVER_HEADERS = server.h
 CLIENT_SRCS = client.c
 CLIENT_OBJS = $(CLIENT_SRCS:.c=.o)
 SERVER_OBJS = $(SERVER_SRCS:.c=.o)
@@ -12,11 +13,10 @@ all: $(NAME)
 
 $(NAME): $(SERVER_NAME) $(CLIENT_NAME)
 
-
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-$(SERVER_NAME): $(SERVER_OBJS)
+$(SERVER_NAME): $(SERVER_OBJS) $(SERVER_HEADERS)
 	$(CC) $(CFLAGS) -o $(SERVER_NAME) $(SERVER_OBJS)
 
 $(CLIENT_NAME): $(CLIENT_OBJS)

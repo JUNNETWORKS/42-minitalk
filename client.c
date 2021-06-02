@@ -38,7 +38,7 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 	while (str[i])
 	{
 		bit_pos = 7;
-		if (i > g_ack_count && sleep(10) == 0)
+		if (i > g_ack_count && sleep(2) == 0)
 			return (1);
 		while (bit_pos >= 0)
 		{
