@@ -2,18 +2,29 @@
 #include <unistd.h>
 #include <signal.h>
 
+int	g_char;
+int	g_current_bit;
+
+#include <stdio.h>
+void	sigalrm_handler(int signum)
+{
+	(void)signum;
+	printf("TIMEOUT!! RESET MEMORY\n");
+	g_char = 0;
+	g_current_bit = 0;
+}
+
 void	restore_data_from_bit(int bit, pid_t client_pid)
 {
-	static int	c;
-	static int	current_bit;
-
-	c = (c << 1) | bit;
-	current_bit++;
-	if (current_bit == 8)
+	g_char = (g_char << 1) | bit;
+	g_current_bit++;
+	// 10秒経っても次のビットが送られてこなかったらリセットする
+	alarm(10);
+	if (g_current_bit == 8)
 	{
-		write(STDOUT_FILENO, &c, 1);
-		c = 0;
-		current_bit = 0;
+		write(STDOUT_FILENO, &g_char, 1);
+		g_char = 0;
+		g_current_bit = 0;
 		usleep(10);
 		kill(client_pid, SIGUSR1);
 	}
@@ -50,6 +61,8 @@ int	main(void)
 	struct sigaction	act_sigusr1;
 	struct sigaction	act_sigusr2;
 
+	g_char = 0;
+	g_current_bit = 0;
 	sigemptyset(&act_sigusr1.sa_mask);
 	act_sigusr1.sa_flags = SA_SIGINFO;
 	act_sigusr1.sa_sigaction = sigusr1_handler;
@@ -58,6 +71,7 @@ int	main(void)
 	act_sigusr2.sa_flags = SA_SIGINFO;
 	act_sigusr2.sa_sigaction = sigusr2_handler;
 	sigaction(SIGUSR2, &act_sigusr2, NULL);
+	signal(SIGALRM, sigalrm_handler);
 	pid = getpid();
 	write(STDOUT_FILENO, "server_pid: ", 12);
 	print_pid(pid);
