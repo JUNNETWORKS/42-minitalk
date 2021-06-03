@@ -59,9 +59,6 @@ int	setup_sig_handlers(void)
 	return (0);
 }
 
-// TODO: ちゃんとエラーチェックしましょう
-// TODO: 1文字ごとにwrite()すると実行速度が遅くてsignalが詰まる可能性がある. 大きい配列を持っていおいて, それに格納していって, ヌル文字もしくは配列の大きさ分文字が来たらwrite()する.
-// TODO: ACKは1文字ずつではなく, 最後にヌル文字が来た場合に送るようにする
 int	main(void)
 {
 	pid_t				pid;
