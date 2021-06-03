@@ -26,7 +26,7 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 		current_char = 0;
 		current_bit = 0;
 	}
-	if (sleep(1) > 0)
+	if (sleep(1) == 0)
 	{
 		len = 0;
 		current_char = 0;
