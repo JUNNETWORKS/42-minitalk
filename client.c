@@ -4,7 +4,6 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 bool	g_has_received_ack;
 
@@ -40,10 +39,8 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 	while (1)
 	{
 		bit_pos = 7;
-		printf("%c: ", str[i]);
 		while (bit_pos >= 0)
 		{
-			printf("%d ", (str[i] & (1 << bit_pos)) > 0);
 			if (kill(server_pid, (int []){SIGUSR1, SIGUSR2}
 				[(str[i] & (1 << bit_pos)) > 0]) < 0)
 				return (1);
@@ -51,7 +48,6 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 				return (1);
 			bit_pos--;
 		}
-		printf("\n");
 		if (str[i] == '\0')
 			break ;
 		i++;

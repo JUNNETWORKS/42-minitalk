@@ -1,7 +1,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include <stdio.h>
 
 void	restore_data_from_bit(int bit, pid_t client_pid)
 {
@@ -15,7 +14,6 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 	if (current_bit == 8)
 	{
 		buffer[len++] = current_char;
-		printf("len: %d, buf: |%s|\n", len, buffer);
 		if (current_char == '\0' || len >= 1000)
 		{
 			write(STDOUT_FILENO, buffer, len - (current_char == '\0'));
