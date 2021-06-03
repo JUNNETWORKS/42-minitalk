@@ -3,8 +3,10 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
 
-int	g_ack_count;
+bool	g_has_received_ack;
 
 pid_t	parse_pid(char *str)
 {
@@ -25,7 +27,8 @@ pid_t	parse_pid(char *str)
 void	sigusr_handler(int signum)
 {
 	(void)signum;
-	g_ack_count++;
+	g_has_received_ack = true;
+	printf("\nReceinved ACK!\n");
 }
 
 int	send_str_by_signal(char *str, pid_t server_pid)
@@ -33,20 +36,22 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 	int		i;
 	int		bit_pos;
 
-	g_ack_count = 0;
 	i = 0;
-	while (str[i])
+	while (1)
 	{
 		bit_pos = 7;
-		if (i > g_ack_count && sleep(2) == 0)
-			return (1);
+		printf("%c: ", str[i]);
 		while (bit_pos >= 0)
 		{
-			if (kill(server_pid, (int[]){SIGUSR1, SIGUSR2}[str[i] & (1 << bit_pos)]) < 0)
+			printf("%d ", (str[i] & (1 << bit_pos)) > 0);
+			if (kill(server_pid, (int[]){SIGUSR1, SIGUSR2}[(str[i] & (1 << bit_pos)) > 0]) < 0)
 				return (1);
 			usleep(100);
 			bit_pos--;
 		}
+		printf("\n");
+		if (str[i] == '\0')
+			break;
 		i++;
 	}
 	return (0);
@@ -60,12 +65,23 @@ int	main(int argc, char **argv)
 
 	if (argc != 3)
 	{
-		write(STDERR_FILENO, "argc is invalid\n", -1);  // TODO
+		write(STDERR_FILENO, "argc is invalid\n", 16);
 		return (1);
 	}
 	server_pid = parse_pid(argv[1]);
-	if (!(server_pid > 0))
+	if (server_pid <= 0)
+	{
+		write(STDERR_FILENO, "pid is invalid\n", 15);
 		return (1);
+	}
+	g_has_received_ack = false;
 	signal(SIGUSR1, sigusr_handler);
-	return (send_str_by_signal(argv[2], server_pid));
+	if (send_str_by_signal(argv[2], server_pid) != 0)
+		return (1);
+	if (!g_has_received_ack)
+		sleep(5);
+	if (g_has_received_ack)
+		return (0);
+	write(STDERR_FILENO, "Server hasn't responded to client\n", 34);
+	return (1);
 }

@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdio.h>
 
 void	restore_data_from_bit(int bit, pid_t client_pid)
 {
@@ -16,12 +17,6 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 			kill(client_pid, SIGUSR1);
 		current_char = 0;
 		current_bit = 0;
-	}
-	if (sleep(2) > 0 && current_bit)
-	{
-		current_char = 0;
-		current_bit = 0;
-		write(STDERR_FILENO, "TIMEOUT\n", 8);
 	}
 }
 
