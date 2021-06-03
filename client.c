@@ -44,8 +44,14 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 		while (bit_pos >= 0)
 		{
 			printf("%d ", (str[i] & (1 << bit_pos)) > 0);
-			if (kill(server_pid, (int[]){SIGUSR1, SIGUSR2}[(str[i] & (1 << bit_pos)) > 0]) < 0)
+			if (((str[i] & (1 << bit_pos)) && kill(server_pid, SIGUSR2))
+				|| (!(str[i] & (1 << bit_pos)) && kill(server_pid, SIGUSR1)))
 				return (1);
+			/*
+			if (kill(server_pid, (int []){SIGUSR1, SIGUSR2}
+				[(str[i] & (1 << bit_pos)) > 0]) < 0)
+				return (1);
+				*/
 			if (usleep(100) == -1)
 				return (1);
 			bit_pos--;
