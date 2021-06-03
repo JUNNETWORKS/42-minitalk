@@ -28,7 +28,7 @@ void	sigusr_handler(int signum)
 {
 	(void)signum;
 	g_has_received_ack = true;
-	write(STDOUT_FILENO, "Receinved ACK!\n", 15);
+	write(STDOUT_FILENO, "Received ACK!\n", 14);
 }
 
 int	send_str_by_signal(char *str, pid_t server_pid)
@@ -52,7 +52,7 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 		}
 		printf("\n");
 		if (str[i] == '\0')
-			break;
+			break ;
 		i++;
 	}
 	return (0);
