@@ -15,7 +15,7 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 	if (current_bit == 8)
 	{
 		buffer[len++] = current_char;
-		// printf("len: %d, buf: |%s|\n", len, buffer);
+		printf("len: %d, buf: |%s|\n", len, buffer);
 		if (current_char == '\0' || len >= 1000)
 		{
 			write(STDOUT_FILENO, buffer, len - (current_char == '\0'));
@@ -23,6 +23,12 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 			if (current_char == '\0')
 				kill(client_pid, SIGUSR1);
 		}
+		current_char = 0;
+		current_bit = 0;
+	}
+	if (sleep(1) > 0)
+	{
+		len = 0;
 		current_char = 0;
 		current_bit = 0;
 	}
