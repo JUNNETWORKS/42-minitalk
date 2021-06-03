@@ -28,7 +28,7 @@ void	sigusr_handler(int signum)
 {
 	(void)signum;
 	g_has_received_ack = true;
-	printf("\nReceinved ACK!\n");
+	write(STDOUT_FILENO, "Receinved ACK!\n", 15);
 }
 
 int	send_str_by_signal(char *str, pid_t server_pid)
@@ -46,7 +46,8 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 			printf("%d ", (str[i] & (1 << bit_pos)) > 0);
 			if (kill(server_pid, (int[]){SIGUSR1, SIGUSR2}[(str[i] & (1 << bit_pos)) > 0]) < 0)
 				return (1);
-			usleep(1500);
+			if (usleep(100) == -1)
+				return (1);
 			bit_pos--;
 		}
 		printf("\n");
@@ -57,8 +58,6 @@ int	send_str_by_signal(char *str, pid_t server_pid)
 	return (0);
 }
 
-// TODO: 1000文字2秒以内
-// TODO: ACKが届いてからclientはexitする.
 int	main(int argc, char **argv)
 {
 	pid_t	server_pid;
@@ -75,8 +74,8 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	g_has_received_ack = false;
-	signal(SIGUSR1, sigusr_handler);
-	if (send_str_by_signal(argv[2], server_pid) != 0)
+	if (signal(SIGUSR1, sigusr_handler) == SIG_ERR
+		|| send_str_by_signal(argv[2], server_pid) != 0)
 		return (1);
 	if (!g_has_received_ack)
 		sleep(5);
