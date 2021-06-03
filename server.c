@@ -63,7 +63,8 @@ int	main(void)
 {
 	pid_t				pid;
 
-	setup_sig_handlers();
+	if (setup_sig_handlers() == -1)
+		return (1);
 	pid = getpid();
 	write(STDOUT_FILENO, "server_pid: ", 12);
 	print_pid(pid);
