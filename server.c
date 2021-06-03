@@ -1,7 +1,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include "server.h"
 
 int	g_char;
 int	g_current_bit;
@@ -21,6 +20,13 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 	alarm(2);  // 使用可能関数にはいっていない
 }
 
+void	sigusr_handler(int signum, siginfo_t *info, void *context)
+{
+	(void)signum;
+	(void)context;
+	restore_data_from_bit(signum == SIGUSR2, info->si_pid);
+}
+
 void	print_pid(pid_t	pid)
 {
 	char	c;
@@ -34,18 +40,15 @@ void	print_pid(pid_t	pid)
 
 int	setup_sig_handlers(void)
 {
-	struct sigaction	act_sigusr1;
-	struct sigaction	act_sigusr2;
+	struct sigaction	act_sigusr;
 
-	act_sigusr1.sa_flags = SA_SIGINFO;
-	act_sigusr1.sa_sigaction = sigusr1_handler;
-	if (sigemptyset(&act_sigusr1.sa_mask) < 0 || sigaction(SIGUSR1, &act_sigusr1, NULL) < 0)
+	act_sigusr.sa_flags = SA_SIGINFO;
+	act_sigusr.sa_sigaction = sigusr_handler;
+	if (sigemptyset(&act_sigusr.sa_mask) < 0
+		|| sigaction(SIGUSR1, &act_sigusr, NULL) < 0
+		|| sigaction(SIGUSR2, &act_sigusr, NULL) < 0)
 		return (-1);
-	sigemptyset(&act_sigusr2.sa_mask);
-	act_sigusr2.sa_flags = SA_SIGINFO;
-	act_sigusr2.sa_sigaction = sigusr2_handler;
-	sigaction(SIGUSR2, &act_sigusr2, NULL);
-	signal(SIGALRM, sigalrm_handler);
+	return (0);
 }
 
 // TODO: ALARM()つかっちゃだめ!!
@@ -60,7 +63,7 @@ int	main(int argc, char **argv)
 
 	if (argc != 1)
 	{
-		write(STDERR_FILENO, "argc is invalid\n", -1);  // TODO
+		write(STDERR_FILENO, "argc is invalid\n", 16);  // TODO
 		return (1);
 	}
 	g_char = 0;

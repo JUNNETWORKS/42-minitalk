@@ -22,7 +22,7 @@ pid_t	parse_pid(char *str)
 	return (num);
 }
 
-void	sigusr1_handler(int signum)
+void	sigusr_handler(int signum)
 {
 	(void)signum;
 	g_ack_count++;
@@ -66,6 +66,6 @@ int	main(int argc, char **argv)
 	server_pid = parse_pid(argv[1]);
 	if (!(server_pid > 0))
 		return (1);
-	signal(SIGUSR1, sigusr1_handler);
+	signal(SIGUSR1, sigusr_handler);
 	return (send_str_by_signal(argv[2], server_pid));
 }
