@@ -7,14 +7,22 @@ void	restore_data_from_bit(int bit, pid_t client_pid)
 {
 	static int	current_char;
 	static int	current_bit;
+	static char	buffer[1000];
+	static int	len;
 
 	current_char = (current_char << 1) | bit;
 	current_bit++;
 	if (current_bit == 8)
 	{
-		write(STDOUT_FILENO, &current_char, 1);
-		if (current_char == '\0')
-			kill(client_pid, SIGUSR1);
+		buffer[len++] = current_char;
+		// printf("len: %d, buf: |%s|\n", len, buffer);
+		if (current_char == '\0' || len >= 1000)
+		{
+			write(STDOUT_FILENO, buffer, len - (current_char == '\0'));
+			len = 0;
+			if (current_char == '\0')
+				kill(client_pid, SIGUSR1);
+		}
 		current_char = 0;
 		current_bit = 0;
 	}
